@@ -21,7 +21,7 @@ public class ProfileEntity {
 
     private String name;
 
-    private String gender;
+    private Boolean gender;
 
     private String about;
 }

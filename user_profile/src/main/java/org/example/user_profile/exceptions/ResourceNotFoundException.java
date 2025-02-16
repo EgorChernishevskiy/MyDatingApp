@@ -1,4 +1,4 @@
-package org.example.user_profile;
+package org.example.user_profile.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -1,7 +1,8 @@
 package org.example.user_profile.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.user_profile.ResourceNotFoundException;
+import org.example.user_profile.exceptions.BadRequestException;
+import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.entities.ProfileEntity;
 import org.example.user_profile.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,15 @@ public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
 
     @Override
-    public ProfileEntity createProfile(ProfileEntity profile) {
-        return profileRepository.save(profile);
+    public ProfileEntity createProfile(String name, Boolean gender, String about) {
+
+        ProfileEntity newProfile = ProfileEntity.builder()
+                .name(name)
+                .gender(gender)
+                .about(about)
+                .build();
+
+        return profileRepository.save(newProfile);
     }
 
     @Override
@@ -31,11 +39,22 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ProfileEntity updateProfile(Long id, ProfileEntity profileDetails) {
+    public ProfileEntity updateProfile(Long id, String name, Boolean gender, String about) {
+
         ProfileEntity existingProfile = getProfileById(id);
-        existingProfile.setName(profileDetails.getName());
-        existingProfile.setGender(profileDetails.getGender());
-        existingProfile.setAbout(profileDetails.getAbout());
+
+        if (name != null && !name.isBlank()) {
+            existingProfile.setName(name);
+        }
+
+        if (gender != null) {
+            existingProfile.setGender(gender);
+        }
+
+        if (about != null && !about.isBlank()) {
+            existingProfile.setAbout(about);
+        }
+
         return profileRepository.save(existingProfile);
     }
 
