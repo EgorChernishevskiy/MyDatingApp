@@ -1,66 +1,89 @@
 package org.example.user_profile.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.user_profile.dto.requests.ProfileRequestDTO;
+import org.example.user_profile.dto.responses.ProfileResponseDTO;
 import org.example.user_profile.exceptions.BadRequestException;
 import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.entities.ProfileEntity;
+import org.example.user_profile.mappers.ProfileMapper;
 import org.example.user_profile.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final ProfileMapper profileMapper;
 
     @Override
-    public ProfileEntity createProfile(String name, Boolean gender, String about) {
+    public ProfileResponseDTO createProfile(ProfileRequestDTO dto) {
 
-        ProfileEntity newProfile = ProfileEntity.builder()
-                .name(name)
-                .gender(gender)
-                .about(about)
-                .build();
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new BadRequestException("Name cannot be blank");
+        }
 
-        return profileRepository.save(newProfile);
+        if (dto.getGender() == null) {
+            throw new BadRequestException("Gender cannot be null");
+        }
+
+        if (dto.getAbout() == null || dto.getAbout().isBlank()) {
+            throw new BadRequestException("About cannot be blank");
+        }
+
+        ProfileEntity profile = profileMapper.toEntity(dto);
+        ProfileEntity savedProfile = profileRepository.save(profile);
+
+        return profileMapper.toResponseDTO(savedProfile);
     }
 
     @Override
-    public ProfileEntity getProfileById(Long id) {
-        return profileRepository.findById(id)
+    public ProfileResponseDTO getProfileById(Long id) {
+
+        ProfileEntity profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
+
+        return profileMapper.toResponseDTO(profile);
     }
 
     @Override
-    public List<ProfileEntity> getAllProfiles() {
-        return profileRepository.findAll();
+    public List<ProfileResponseDTO> getAllProfiles() {
+
+        return profileRepository.findAll().stream()
+                .map(profileMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ProfileEntity updateProfile(Long id, String name, Boolean gender, String about) {
+    public ProfileResponseDTO patchProfile(Long id, ProfileRequestDTO dto) {
 
-        ProfileEntity existingProfile = getProfileById(id);
+        ProfileEntity profile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
 
-        if (name != null && !name.isBlank()) {
-            existingProfile.setName(name);
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            profile.setName(dto.getName());
         }
 
-        if (gender != null) {
-            existingProfile.setGender(gender);
+        if (dto.getGender() != null) {
+            profile.setGender(dto.getGender());
         }
 
-        if (about != null && !about.isBlank()) {
-            existingProfile.setAbout(about);
+        if (dto.getAbout() != null && !dto.getAbout().isBlank()) {
+            profile.setAbout(dto.getAbout());
         }
 
-        return profileRepository.save(existingProfile);
+        ProfileEntity updatedProfile = profileRepository.save(profile);
+        return profileMapper.toResponseDTO(updatedProfile);
     }
 
     @Override
     public void deleteProfile(Long id) {
-        ProfileEntity profile = getProfileById(id);
+        ProfileEntity profile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
         profileRepository.delete(profile);
     }
 }

@@ -1,18 +1,19 @@
 package org.example.user_profile.services;
 
-import org.example.user_profile.entities.ProfileEntity;
+import org.example.user_profile.dto.requests.ProfileRequestDTO;
+import org.example.user_profile.dto.responses.ProfileResponseDTO;
 
 import java.util.List;
 
 public interface ProfileService {
 
-    ProfileEntity createProfile(String name, Boolean gender, String about);
+    ProfileResponseDTO createProfile(ProfileRequestDTO profileRequestDTO);
 
-    ProfileEntity getProfileById(Long id);
+    ProfileResponseDTO getProfileById(Long id);
 
-    List<ProfileEntity> getAllProfiles();
+    List<ProfileResponseDTO> getAllProfiles();
 
-    ProfileEntity updateProfile(Long id, String name, Boolean gender, String about);
+    ProfileResponseDTO patchProfile(Long id, ProfileRequestDTO profileRequestDTO);
 
     void deleteProfile(Long id);
 }

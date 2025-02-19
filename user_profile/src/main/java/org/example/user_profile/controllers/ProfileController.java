@@ -1,15 +1,14 @@
 package org.example.user_profile.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.user_profile.entities.ProfileEntity;
-import org.example.user_profile.exceptions.BadRequestException;
+import org.example.user_profile.dto.requests.ProfileRequestDTO;
+import org.example.user_profile.dto.responses.ProfileResponseDTO;
 import org.example.user_profile.services.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/profiles")
@@ -19,24 +18,29 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping
-    public ResponseEntity<ProfileEntity> createProfile(
-            @RequestParam("name") String name,
-            @RequestParam("gender") Boolean gender,
-            @RequestParam("about_me") String about
-            )
-    {
-        if (name.isBlank()) {
-            throw new BadRequestException("Name cannot be blank");
-        }
-
-        if (about.isBlank()) {
-            throw new BadRequestException("About cannot be blank");
-        }
-
-        ProfileEntity createdProfile = profileService.createProfile(name, gender, about);
-
-        return new ResponseEntity<>(createdProfile, HttpStatus.CREATED);
+    public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO dto) {
+        return new ResponseEntity<>(profileService.createProfile(dto), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ProfileResponseDTO>> getAllProfiles() {
+        return new ResponseEntity<>(profileService.getAllProfiles(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProfileResponseDTO> getProfileById(@PathVariable Long id) {
+        return new ResponseEntity<>(profileService.getProfileById(id), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable Long id, @RequestBody ProfileRequestDTO dto) {
+        return new ResponseEntity<>(profileService.patchProfile(id, dto), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProfileById(@PathVariable Long id) {
+        profileService.deleteProfile(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
 }
