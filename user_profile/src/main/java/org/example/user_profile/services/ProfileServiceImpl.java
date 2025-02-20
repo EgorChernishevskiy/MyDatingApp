@@ -3,7 +3,6 @@ package org.example.user_profile.services;
 import lombok.RequiredArgsConstructor;
 import org.example.user_profile.dto.requests.ProfileRequestDTO;
 import org.example.user_profile.dto.responses.ProfileResponseDTO;
-import org.example.user_profile.exceptions.BadRequestException;
 import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.entities.ProfileEntity;
 import org.example.user_profile.mappers.ProfileMapper;
@@ -22,18 +21,6 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileResponseDTO createProfile(ProfileRequestDTO dto) {
-
-        if (dto.getName() == null || dto.getName().isBlank()) {
-            throw new BadRequestException("Name cannot be blank");
-        }
-
-        if (dto.getGender() == null) {
-            throw new BadRequestException("Gender cannot be null");
-        }
-
-        if (dto.getAbout() == null || dto.getAbout().isBlank()) {
-            throw new BadRequestException("About cannot be blank");
-        }
 
         ProfileEntity profile = profileMapper.toEntity(dto);
         ProfileEntity savedProfile = profileRepository.save(profile);
