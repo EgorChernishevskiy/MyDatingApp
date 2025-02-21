@@ -11,6 +11,7 @@ public class ProfileMapper {
     public ProfileEntity toEntity(ProfileRequestDTO dto) {
         return ProfileEntity.builder()
                 .name(dto.getName())
+                .age(dto.getAge())
                 .gender(dto.getGender())
                 .about(dto.getAbout())
                 .build();
@@ -19,6 +20,7 @@ public class ProfileMapper {
     public ProfileResponseDTO toResponseDTO(ProfileEntity entity) {
         return ProfileResponseDTO.builder()
                 .id(entity.getId())
+                .age(entity.getAge())
                 .name(entity.getName())
                 .gender(entity.getGender())
                 .about(entity.getAbout())

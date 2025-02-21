@@ -6,10 +6,10 @@ import org.example.user_profile.utils.enums.Gender;
 
 @Data
 @Builder
-public class ProfileResponseDTO {
+public class PreferencesResponseDTO {
     private Long id;
-    private String name;
-    private Integer age;
     private Gender gender;
-    private String about;
+    private Integer ageMin;
+    private Integer ageMax;
+    private Integer radius;
 }

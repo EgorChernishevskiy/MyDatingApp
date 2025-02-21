@@ -6,9 +6,9 @@ import org.example.user_profile.utils.enums.Gender;
 
 @Data
 @Builder
-public class ProfileRequestDTO {
-    private String name;
-    private Integer age;
+public class PreferencesRequestDTO {
     private Gender gender;
-    private String about;
+    private Integer ageMin;
+    private Integer ageMax;
+    private Integer radius;
 }

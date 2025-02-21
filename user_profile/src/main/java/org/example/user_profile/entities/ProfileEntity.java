@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
+import org.example.user_profile.utils.enums.Gender;
 
 @Getter
 @Setter
@@ -21,7 +22,9 @@ public class ProfileEntity {
 
     private String name;
 
-    private Boolean gender;
+    private Integer age;
+
+    private Gender gender;
 
     private String about;
 }
