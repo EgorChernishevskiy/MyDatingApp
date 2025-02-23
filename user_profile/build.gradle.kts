@@ -26,7 +26,10 @@ dependencies {
 	// PostgreSQL
 	implementation("org.postgresql:postgresql:42.7.2")
 
-	// Lombock
+	// AmazonS3
+	implementation("com.amazonaws:aws-java-sdk-s3:1.12.780")
+
+	// Lombok
 	compileOnly ("org.projectlombok:lombok:1.18.30")
 	testCompileOnly ("org.projectlombok:lombok:1.18.30")
 	annotationProcessor ("org.projectlombok:lombok:1.18.30")
