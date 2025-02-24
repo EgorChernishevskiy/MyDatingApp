@@ -5,11 +5,13 @@ import org.example.user_profile.dto.requests.PreferencesRequestDTO;
 import org.example.user_profile.dto.requests.ProfileRequestDTO;
 import org.example.user_profile.dto.responses.PreferencesResponseDTO;
 import org.example.user_profile.dto.responses.ProfileResponseDTO;
+import org.example.user_profile.services.PhotoServiceImpl;
 import org.example.user_profile.services.PreferencesServiceImpl;
 import org.example.user_profile.services.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final PreferencesServiceImpl preferencesService;
+    private final PhotoServiceImpl photoService;
 
     @PostMapping
     public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO dto) {
@@ -79,6 +82,24 @@ public class ProfileController {
         PreferencesResponseDTO response = preferencesService.patchPreference(id, preferencesRequestDTO);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/profile/{profileId}")
+    public ResponseEntity<Void> addPhotosToProfile(
+            @PathVariable Long profileId,
+            @RequestPart("photos") List<MultipartFile> photos
+    ) {
+        photoService.addPhotosToProfile(profileId, photos);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{profileId}/photos/{photoId}")
+    public ResponseEntity<Void> deletePhoto(@PathVariable Long profileId, @PathVariable Long photoId) {
+
+        photoService.deletePhotoById(photoId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

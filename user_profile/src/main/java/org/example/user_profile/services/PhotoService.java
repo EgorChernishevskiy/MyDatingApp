@@ -10,9 +10,11 @@ public interface PhotoService {
 
     List<String> uploadPhotos(List<MultipartFile> files);
 
+    void addPhotosToProfile(Long profileId, List<MultipartFile> files);
+
     List<String> getPhotoUrlsByProfileId(Long profileId);
 
     void deletePhotosByProfileId(Long profileId);
 
-    void deletePhoto(String url);
+    void deletePhotoById(Long photoId);
 }

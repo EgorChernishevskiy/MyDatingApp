@@ -14,5 +14,4 @@ public class ProfileRequestDTO {
     private Integer age;
     private Gender gender;
     private String about;
-    private List<MultipartFile> photos;
 }

@@ -10,7 +10,6 @@ import org.example.user_profile.entities.ProfileEntity;
 import org.example.user_profile.mappers.ProfileMapper;
 import org.example.user_profile.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,18 +44,7 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileEntity profile = profileMapper.toEntity(dto);
         ProfileEntity savedProfile = profileRepository.save(profile);
 
-        List<MultipartFile> photos = dto.getPhotos();
-
-        if (photos != null && !photos.isEmpty()) {
-            photoService.addPhotosToProfile(savedProfile.getId(), photos);
-        }
-
-        List<String> photoUrls = photoService.getPhotoUrlsByProfileId(savedProfile.getId());
-
-        ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(savedProfile);
-        responseDTO.setPhotoUrls(photoUrls);
-
-        return responseDTO;
+        return profileMapper.toResponseDTO(savedProfile);
     }
 
     @Override
@@ -107,12 +95,6 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         ProfileEntity updatedProfile = profileRepository.save(profile);
-
-        List<MultipartFile> newPhotos = dto.getPhotos();
-
-        if (newPhotos != null && !newPhotos.isEmpty()) {
-            photoService.addPhotosToProfile(updatedProfile.getId(), newPhotos);
-        }
 
         List<String> photoUrls = photoService.getPhotoUrlsByProfileId(updatedProfile.getId());
 
