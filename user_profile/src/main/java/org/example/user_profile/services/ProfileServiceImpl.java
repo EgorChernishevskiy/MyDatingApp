@@ -3,12 +3,14 @@ package org.example.user_profile.services;
 import lombok.RequiredArgsConstructor;
 import org.example.user_profile.dto.requests.ProfileRequestDTO;
 import org.example.user_profile.dto.responses.ProfileResponseDTO;
+import org.example.user_profile.entities.PhotoEntity;
 import org.example.user_profile.exceptions.BadRequestException;
 import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.entities.ProfileEntity;
 import org.example.user_profile.mappers.ProfileMapper;
 import org.example.user_profile.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
+    private final PhotoService photoService;
 
     @Override
     public ProfileResponseDTO createProfile(ProfileRequestDTO dto) {
@@ -42,7 +45,18 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileEntity profile = profileMapper.toEntity(dto);
         ProfileEntity savedProfile = profileRepository.save(profile);
 
-        return profileMapper.toResponseDTO(savedProfile);
+        List<MultipartFile> photos = dto.getPhotos();
+
+        if (photos != null && !photos.isEmpty()) {
+            photoService.addPhotosToProfile(savedProfile.getId(), photos);
+        }
+
+        List<String> photoUrls = photoService.getPhotoUrlsByProfileId(savedProfile.getId());
+
+        ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(savedProfile);
+        responseDTO.setPhotoUrls(photoUrls);
+
+        return responseDTO;
     }
 
     @Override
@@ -51,15 +65,23 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileEntity profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
 
-        return profileMapper.toResponseDTO(profile);
+        List<String> photoUrls = photoService.getPhotoUrlsByProfileId(profile.getId());
+
+        ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(profile);
+        responseDTO.setPhotoUrls(photoUrls);
+
+        return responseDTO;
     }
 
     @Override
     public List<ProfileResponseDTO> getAllProfiles() {
 
-        return profileRepository.findAll().stream()
-                .map(profileMapper::toResponseDTO)
-                .collect(Collectors.toList());
+        return profileRepository.findAll().stream().map(profile -> {
+            List<String> photoUrls = photoService.getPhotoUrlsByProfileId(profile.getId());
+            ProfileResponseDTO dto = profileMapper.toResponseDTO(profile);
+            dto.setPhotoUrls(photoUrls);
+            return dto;                     //?????????????????
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -85,7 +107,19 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         ProfileEntity updatedProfile = profileRepository.save(profile);
-        return profileMapper.toResponseDTO(updatedProfile);
+
+        List<MultipartFile> newPhotos = dto.getPhotos();
+
+        if (newPhotos != null && !newPhotos.isEmpty()) {
+            photoService.addPhotosToProfile(updatedProfile.getId(), newPhotos);
+        }
+
+        List<String> photoUrls = photoService.getPhotoUrlsByProfileId(updatedProfile.getId());
+
+        ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(updatedProfile);
+        responseDTO.setPhotoUrls(photoUrls);
+
+        return responseDTO;
     }
 
     @Override
@@ -94,6 +128,7 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileEntity profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
 
+        photoService.deletePhotosByProfileId(profile.getId());
         profileRepository.delete(profile);
     }
 }
