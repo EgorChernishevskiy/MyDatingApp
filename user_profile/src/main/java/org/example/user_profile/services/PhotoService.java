@@ -16,5 +16,5 @@ public interface PhotoService {
 
     void deletePhotosByProfileId(Long profileId);
 
-    void deletePhotoById(Long photoId);
+    void deletePhotoByURl(String url);
 }

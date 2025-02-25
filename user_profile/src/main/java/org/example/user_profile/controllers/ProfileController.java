@@ -84,7 +84,7 @@ public class ProfileController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/profile/{profileId}")
+    @PostMapping("/{profileId}/photos")
     public ResponseEntity<Void> addPhotosToProfile(
             @PathVariable Long profileId,
             @RequestPart("photos") List<MultipartFile> photos
@@ -94,10 +94,10 @@ public class ProfileController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{profileId}/photos/{photoId}")
-    public ResponseEntity<Void> deletePhoto(@PathVariable Long profileId, @PathVariable Long photoId) {
+    @DeleteMapping("/{profileId}/photos")
+    public ResponseEntity<Void> deletePhoto(@PathVariable Long profileId, @RequestParam String url) {
 
-        photoService.deletePhotoById(photoId);
+        photoService.deletePhotoByURl(url);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -37,18 +37,26 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    // Конструктор для инициализации S3-клиента (для Amazon S3 или Yandex Cloud, если понадобится изменить endpoint)
-    public PhotoServiceImpl(@Value("${aws.accessKeyId}") String accessKeyId,
-                            @Value("${aws.secretKey}") String secretKey,
-                            @Value("${aws.region}") String region,
-                            PhotoRepository photoRepository) {
+    // Обратите внимание на дополнительный параметр endpoint, который может быть пустым.
+    public PhotoServiceImpl(
+            @Value("${aws.accessKeyId}") String accessKeyId,
+            @Value("${aws.secretKey}") String secretKey,
+            @Value("${aws.region}") String region,
+            @Value("${aws.s3.endpoint:}") String endpoint,  // Если не задан – пустая строка
+            PhotoRepository photoRepository)
+    {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKeyId, secretKey);
-        this.s3Client = AmazonS3ClientBuilder.standard()
-                // Если нужно использовать Yandex Cloud, можно добавить:
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("https://storage.yandexcloud.net", region))
-                .withRegion(region)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
+        AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
+        if (endpoint != null && !endpoint.isBlank()) {
+            // Если указан endpoint (например, для Yandex Cloud), используем его вместе с регионом
+            builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                    .withPathStyleAccessEnabled(true);
+        } else {
+            // Иначе просто задаем регион
+            builder.withRegion(region);
+        }
+        this.s3Client = builder.build();
         this.photoRepository = photoRepository;
     }
 
@@ -119,10 +127,10 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public void deletePhotoById(Long photoId) {
+    public void deletePhotoByURl(String url) {
 
-        PhotoEntity photo = photoRepository.findById(photoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Photo not found with id: " + photoId));
+        PhotoEntity photo = photoRepository.findByUrl(url)
+                .orElseThrow(() -> new ResourceNotFoundException("Photo not found with url: " + url));
 
         String key = extractKeyFromUrl(photo.getUrl());
 
