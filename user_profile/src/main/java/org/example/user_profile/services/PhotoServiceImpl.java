@@ -4,7 +4,6 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -21,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
@@ -37,23 +39,22 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    // Обратите внимание на дополнительный параметр endpoint, который может быть пустым.
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    
     public PhotoServiceImpl(
             @Value("${aws.accessKeyId}") String accessKeyId,
             @Value("${aws.secretKey}") String secretKey,
             @Value("${aws.region}") String region,
-            @Value("${aws.s3.endpoint:}") String endpoint,  // Если не задан – пустая строка
+            @Value("${aws.s3.endpoint:}") String endpoint,
             PhotoRepository photoRepository)
     {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKeyId, secretKey);
         AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
         if (endpoint != null && !endpoint.isBlank()) {
-            // Если указан endpoint (например, для Yandex Cloud), используем его вместе с регионом
             builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                     .withPathStyleAccessEnabled(true);
         } else {
-            // Иначе просто задаем регион
             builder.withRegion(region);
         }
         this.s3Client = builder.build();
@@ -79,15 +80,18 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public void addPhotosToProfile(Long profileId, List<MultipartFile> files) {
-        // Получаем ссылку (proxy) на существующий профиль без загрузки всей сущности
+
         ProfileEntity profile = entityManager.getReference(ProfileEntity.class, profileId);
+
         List<String> photoUrls = uploadPhotos(files);
+
         List<PhotoEntity> photoEntities = photoUrls.stream()
                 .map(url -> PhotoEntity.builder()
                         .url(url)
                         .profile(profile)
                         .build())
                 .collect(Collectors.toList());
+
         photoRepository.saveAll(photoEntities);
     }
 
@@ -95,7 +99,8 @@ public class PhotoServiceImpl implements PhotoService {
     public List<String> uploadPhotos(List<MultipartFile> files) {
 
         return files.stream()
-                .map(this::uploadPhoto)
+                .map(file -> CompletableFuture.supplyAsync(() -> uploadPhoto(file), executorService))
+                .map(CompletableFuture::join)
                 .collect(Collectors.toList());
     }
 
@@ -144,8 +149,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     private String extractKeyFromUrl(String url) {
-        // Реализуйте извлечение ключа из URL. Например, если URL имеет формат
-        // https://bucket-name.s3.amazonaws.com/key, можно вернуть часть после последнего "/".
+
         return url.substring(url.lastIndexOf("/") + 1);
     }
 }

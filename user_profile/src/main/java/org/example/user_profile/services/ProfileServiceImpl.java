@@ -3,7 +3,6 @@ package org.example.user_profile.services;
 import lombok.RequiredArgsConstructor;
 import org.example.user_profile.dto.requests.ProfileRequestDTO;
 import org.example.user_profile.dto.responses.ProfileResponseDTO;
-import org.example.user_profile.entities.PhotoEntity;
 import org.example.user_profile.exceptions.BadRequestException;
 import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.entities.ProfileEntity;
@@ -68,7 +67,7 @@ public class ProfileServiceImpl implements ProfileService {
             List<String> photoUrls = photoService.getPhotoUrlsByProfileId(profile.getId());
             ProfileResponseDTO dto = profileMapper.toResponseDTO(profile);
             dto.setPhotoUrls(photoUrls);
-            return dto;                     //?????????????????
+            return dto;
         }).collect(Collectors.toList());
     }
 
