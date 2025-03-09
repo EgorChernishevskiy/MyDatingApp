@@ -22,6 +22,10 @@ dependencies {
 	// Spring
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-configuration-processor:3.4.3")
+
+	implementation("io.github.cdimascio:java-dotenv:5.2.2")
+
 
 	// PostgreSQL
 	implementation("org.postgresql:postgresql:42.7.2")

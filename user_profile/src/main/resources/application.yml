@@ -3,9 +3,9 @@
     port: 8081
   spring:
     datasource:
-      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost/user_profile}
-      username: ${SPRING_DATASOURCE_USERNAME:postgres}
-      password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+      url: ${SPRING_DATASOURCE_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
       driver-class-name: org.postgresql.Driver
     jpa:
       hibernate:
@@ -19,8 +19,8 @@
         host: localhost
         port: 6379
   aws:
-    accessKeyId: REMOVED_AWS_ACCESS_KEY
-    secretKey: REMOVED_AWS_SECRET_KEY
+    accessKeyId: ${AWS_ACCESS_KEY_ID}
+    secretKey: ${AWS_SECRET_KEY}
     region: ru-central1
     s3:
       bucket: my-date-app
