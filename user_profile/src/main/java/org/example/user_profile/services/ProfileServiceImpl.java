@@ -8,6 +8,9 @@ import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.entities.ProfileEntity;
 import org.example.user_profile.mappers.ProfileMapper;
 import org.example.user_profile.repositories.ProfileRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +25,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final PhotoService photoService;
 
     @Override
+    @CachePut(value = "profiles", key = "#result.id")
     public ProfileResponseDTO createProfile(ProfileRequestDTO dto) {
 
         if (dto.getName() == null || dto.getName().isBlank()) {
@@ -47,6 +51,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    @Cacheable(value = "profiles", key = "#id")
     public ProfileResponseDTO getProfileById(Long id) {
 
         ProfileEntity profile = profileRepository.findById(id)
@@ -72,6 +77,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    @CachePut(value = "profiles", key = "#id")
     public ProfileResponseDTO patchProfile(Long id, ProfileRequestDTO dto) {
 
         ProfileEntity profile = profileRepository.findById(id)
@@ -104,6 +110,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    @CacheEvict(value = "profiles", key = "#id")
     public void deleteProfile(Long id) {
 
         ProfileEntity profile = profileRepository.findById(id)

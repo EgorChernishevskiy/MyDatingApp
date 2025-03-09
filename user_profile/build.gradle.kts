@@ -26,6 +26,11 @@ dependencies {
 	// PostgreSQL
 	implementation("org.postgresql:postgresql:42.7.2")
 
+	//Redis
+	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.springframework.boot:spring-boot-starter-cache")
+
+
 	// AmazonS3
 	implementation("com.amazonaws:aws-java-sdk-s3:1.12.780")
 
