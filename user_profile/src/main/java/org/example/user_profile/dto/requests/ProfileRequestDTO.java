@@ -14,4 +14,6 @@ public class ProfileRequestDTO {
     private Integer age;
     private Gender gender;
     private String about;
+    private Double latitude;
+    private Double longitude;
 }

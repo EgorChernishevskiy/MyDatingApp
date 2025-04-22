@@ -1,6 +1,7 @@
 package org.example.user_profile.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.user_profile.dto.GeoLocationDTO;
 import org.example.user_profile.dto.requests.ProfileRequestDTO;
 import org.example.user_profile.dto.responses.ProfileResponseDTO;
 import org.example.user_profile.exceptions.BadRequestException;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
+    private final GeoLocationService geoLocationService;
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
     private final PhotoService photoService;
@@ -44,10 +46,21 @@ public class ProfileServiceImpl implements ProfileService {
             throw new BadRequestException("About cannot be blank");
         }
 
+        if (dto.getLatitude() == null || dto.getLongitude() == null) {
+            throw new BadRequestException("Latitude and Longitude cannot be blank");
+        }
+
         ProfileEntity profile = profileMapper.toEntity(dto);
         ProfileEntity savedProfile = profileRepository.save(profile);
 
-        return profileMapper.toResponseDTO(savedProfile);
+        geoLocationService.setLocation(savedProfile.getId(), dto.getLatitude(), dto.getLongitude());
+
+        GeoLocationDTO location = geoLocationService.getLocation(savedProfile.getId());
+
+        ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(savedProfile);
+        responseDTO.setLocation(location);
+
+        return responseDTO;
     }
 
     @Override
@@ -61,6 +74,9 @@ public class ProfileServiceImpl implements ProfileService {
 
         ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(profile);
         responseDTO.setPhotoUrls(photoUrls);
+
+        GeoLocationDTO location = geoLocationService.getLocation(profile.getId());
+        responseDTO.setLocation(location);
 
         return responseDTO;
     }

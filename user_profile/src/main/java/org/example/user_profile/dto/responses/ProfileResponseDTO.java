@@ -3,6 +3,7 @@ package org.example.user_profile.dto.responses;
 import lombok.Builder;
 import lombok.Data;
 import org.example.user_profile.utils.enums.Gender;
+import org.example.user_profile.dto.GeoLocationDTO;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,5 +21,6 @@ public class ProfileResponseDTO implements Serializable {
     private Integer age;
     private Gender gender;
     private String about;
+    private GeoLocationDTO location;
     private List<String> photoUrls;
 }

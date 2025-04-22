@@ -30,6 +30,10 @@ dependencies {
 	// PostgreSQL
 	implementation("org.postgresql:postgresql:42.7.2")
 
+	// location
+	implementation("org.hibernate.orm:hibernate-spatial:6.4.4.Final")
+	implementation("org.locationtech.jts:jts-core:1.19.0")
+
 	//Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation ("org.springframework.boot:spring-boot-starter-cache")
