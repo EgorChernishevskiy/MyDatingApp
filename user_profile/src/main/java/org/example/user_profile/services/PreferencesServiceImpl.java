@@ -22,8 +22,8 @@ public class PreferencesServiceImpl implements PreferencesService {
     @Override
     public PreferencesResponseDTO getPreferenceById(Long id) {
 
-        PreferencesEntity preferencesEntity = preferenceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Preferences not found with profile id: " + id));
+        PreferencesEntity preferencesEntity = preferenceRepository.findByProfileId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Preferences not found for user with ID " + id));
 
         return preferenceMapper.toResponseDTO(preferencesEntity);
     }

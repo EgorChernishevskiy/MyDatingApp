@@ -16,6 +16,7 @@ import org.example.user_profile.entities.ProfileEntity;
 import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.repositories.PhotoRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -79,6 +80,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    @CacheEvict(value = "profiles", key = "#profileId")
     public void addPhotosToProfile(Long profileId, List<MultipartFile> files) {
 
         ProfileEntity profile = entityManager.getReference(ProfileEntity.class, profileId);
@@ -115,6 +117,7 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    @CacheEvict(value = "profiles", key = "#profileId")
     public void deletePhotosByProfileId(Long profileId) {
 
         List<PhotoEntity> photos = photoRepository.findByProfileId(profileId);
@@ -132,7 +135,8 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public void deletePhotoByURl(String url) {
+    @CacheEvict(value = "profiles", key = "#profileId")
+    public void deletePhotoByURl(Long profileId, String url) {
 
         PhotoEntity photo = photoRepository.findByUrl(url)
                 .orElseThrow(() -> new ResourceNotFoundException("Photo not found with url: " + url));

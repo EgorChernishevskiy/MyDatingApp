@@ -97,7 +97,7 @@ public class ProfileController {
     @DeleteMapping("/{profileId}/photos")
     public ResponseEntity<Void> deletePhoto(@PathVariable Long profileId, @RequestParam String url) {
 
-        photoService.deletePhotoByURl(url);
+        photoService.deletePhotoByURl(profileId, url);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

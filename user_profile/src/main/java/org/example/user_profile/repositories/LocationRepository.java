@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<LocationEntity, Long> {
     Optional<LocationEntity> findByProfileId(Long profileId);
+    void deleteAllByProfileId(Long profileId);
 }

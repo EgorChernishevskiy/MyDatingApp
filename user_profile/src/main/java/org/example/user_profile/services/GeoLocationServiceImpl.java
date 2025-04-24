@@ -10,6 +10,7 @@ import org.example.user_profile.repositories.ProfileRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +22,7 @@ public class GeoLocationServiceImpl implements GeoLocationService {
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @Override
+    @CacheEvict(value = "profiles", key = "#profileId")
     public void setLocation(Long profileId, double latitude, double longitude) {
 
         ProfileEntity profile = profileRepository.findById(profileId)
@@ -34,6 +36,12 @@ public class GeoLocationServiceImpl implements GeoLocationService {
 
         location.setCoordinates(point);
         locationRepository.save(location);
+    }
+
+    @Override
+    public void deleteLocation(Long profileId) {
+
+        locationRepository.deleteAllByProfileId(profileId);
     }
 
     @Override

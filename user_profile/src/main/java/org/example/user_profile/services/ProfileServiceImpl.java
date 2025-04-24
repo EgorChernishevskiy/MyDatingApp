@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -117,6 +118,10 @@ public class ProfileServiceImpl implements ProfileService {
 
         ProfileEntity updatedProfile = profileRepository.save(profile);
 
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            geoLocationService.setLocation(updatedProfile.getId(), dto.getLatitude(), dto.getLongitude());
+        }
+
         List<String> photoUrls = photoService.getPhotoUrlsByProfileId(updatedProfile.getId());
 
         ProfileResponseDTO responseDTO = profileMapper.toResponseDTO(updatedProfile);
@@ -127,12 +132,14 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     @CacheEvict(value = "profiles", key = "#id")
+    @Transactional
     public void deleteProfile(Long id) {
 
         ProfileEntity profile = profileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
 
         photoService.deletePhotosByProfileId(profile.getId());
+        geoLocationService.deleteLocation(id);
         profileRepository.delete(profile);
     }
 }
