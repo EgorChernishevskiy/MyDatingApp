@@ -9,6 +9,7 @@ import org.example.user_profile.exceptions.ResourceNotFoundException;
 import org.example.user_profile.mappers.PreferenceMapper;
 import org.example.user_profile.repositories.PreferenceRepository;
 import org.example.user_profile.repositories.ProfileRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +28,7 @@ public class PreferencesService {
         return preferenceMapper.toResponseDTO(preferencesEntity);
     }
 
+    @CacheEvict(value = "decks", key = "#id")
     public PreferencesResponseDTO addPreference(Long id, PreferencesRequestDTO dto) {
 
         PreferencesEntity preferencesEntity = preferenceMapper.toEntity(dto);
@@ -41,6 +43,7 @@ public class PreferencesService {
         return preferenceMapper.toResponseDTO(savedPreferences);
     }
 
+    @CacheEvict(value = "decks", key = "#id")
     public PreferencesResponseDTO patchPreference(Long id, PreferencesRequestDTO dto) {
 
         PreferencesEntity existingPreference = preferenceRepository.findByProfileId(id)
