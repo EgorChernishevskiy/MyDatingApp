@@ -5,9 +5,12 @@ import org.example.user_profile.dto.requests.PreferencesRequestDTO;
 import org.example.user_profile.dto.requests.ProfileRequestDTO;
 import org.example.user_profile.dto.responses.PreferencesResponseDTO;
 import org.example.user_profile.dto.responses.ProfileResponseDTO;
-import org.example.user_profile.services.PhotoServiceImpl;
-import org.example.user_profile.services.PreferencesServiceImpl;
+import org.example.user_profile.services.PhotoService;
+import org.example.user_profile.services.PreferencesService;
 import org.example.user_profile.services.ProfileService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +24,8 @@ import java.util.List;
 public class ProfileController {
 
     private final ProfileService profileService;
-    private final PreferencesServiceImpl preferencesService;
-    private final PhotoServiceImpl photoService;
+    private final PreferencesService preferencesService;
+    private final PhotoService photoService;
 
     @PostMapping
     public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO dto) {
@@ -31,9 +34,14 @@ public class ProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfileResponseDTO>> getAllProfiles() {
+    public ResponseEntity<Page<ProfileResponseDTO>> getAllProfiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
 
-        return new ResponseEntity<>(profileService.getAllProfiles(), HttpStatus.OK);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProfileResponseDTO> profiles = profileService.getAllProfiles(pageable);
+        return new ResponseEntity<>(profiles, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
