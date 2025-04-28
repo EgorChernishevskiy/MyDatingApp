@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +22,10 @@ public class GeoLocationService {
     private final ProfileRepository profileRepository;
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
-    @CacheEvict(value = "profiles", key = "#profileId")
+    @Caching(evict = {
+            @CacheEvict(value = "profiles", key = "#profileId"),
+            @CacheEvict(value = "decks", key = "#profileId")
+    })
     public void setLocation(Long profileId, double latitude, double longitude) {
 
         ProfileEntity profile = profileRepository.findById(profileId)
