@@ -11,5 +11,4 @@ public interface SwipeRepository extends JpaRepository<SwipeEntity, Long> {
 
     Optional<SwipeEntity> findByUserIdFromAndUserIdTo(Long userIdFrom, Long userIdTo);
 
-    Optional<SwipeEntity> findByUserIdToAndUserIdFrom(Long userIdTo, Long userIdFrom);
 }

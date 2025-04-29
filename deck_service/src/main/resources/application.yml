@@ -1,0 +1,31 @@
+---
+  server:
+    port: 8083
+  spring:
+    datasource:
+      url: ${SPRING_DATASOURCE_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+    secondary-datasource:
+      url: ${SPRING_DATASOURCE_URL_2}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+    cache:
+      type: redis
+      redis:
+        time-to-live: PT1H
+
+    data:
+      redis:
+        host: localhost
+        port: 6379
+  aws:
+    accessKeyId: ${AWS_ACCESS_KEY_ID}
+    secretKey: ${AWS_SECRET_KEY}
+    region: ru-central1
+    s3:
+      bucket: my-date-app
+      endpoint: https://storage.yandexcloud.net
+

@@ -1,12 +1,13 @@
-package org.example.user_profile.services;
+package com.example.deck_service.service;
 
+import com.example.deck_service.dto.PreferencesResponseDTO;
+import com.example.deck_service.dto.ProfileResponseDTO;
+import com.example.deck_service.entity.profile.ProfileEntity;
+import com.example.deck_service.entity.swipe.SwipeEntity;
+import com.example.deck_service.mapper.ProfileMapper;
+import com.example.deck_service.repository.profile.ProfileRepository;
+import com.example.deck_service.repository.swipe.SwipeRepository;
 import lombok.RequiredArgsConstructor;
-import org.example.user_profile.dto.responses.PreferencesResponseDTO;
-import org.example.user_profile.dto.responses.ProfileResponseDTO;
-import org.example.user_profile.entities.ProfileEntity;
-import org.example.user_profile.mappers.ProfileMapper;
-import org.example.user_profile.repositories.ProfileRepository;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,8 @@ public class DeckService {
     private final GeoLocationService geoLocationService;
     private final PhotoService photoService;
     private final ProfileMapper profileMapper;
+    private final SwipeRepository swipeRepository;
+
 
     @CachePut(value = "decks", key = "#userId")
     public List<ProfileResponseDTO> generateDeck(Long userId) {
@@ -38,7 +41,15 @@ public class DeckService {
                 preferences.getRadius()
         );
 
-        return candidates.stream()
+        List<Long> swipedIds = swipeRepository.findAllByUserIdFrom(userId).stream()
+                .map(SwipeEntity::getUserIdTo)
+                .toList();
+
+        List<ProfileEntity> filteredCandidates = candidates.stream()
+                .filter(profile -> !swipedIds.contains(profile.getId()))
+                .toList();
+
+        return filteredCandidates.stream()
                 .map(profile -> {
                     ProfileResponseDTO dto = profileMapper.toResponseDTO(profile);
                     dto.setPhotoUrls(photoService.getPhotoUrlsByProfileId(profile.getId()));

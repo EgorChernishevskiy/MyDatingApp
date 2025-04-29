@@ -1,8 +1,8 @@
-package org.example.user_profile.controllers;
+package com.example.deck_service.controller;
 
+import com.example.deck_service.dto.ProfileResponseDTO;
+import com.example.deck_service.service.DeckService;
 import lombok.RequiredArgsConstructor;
-import org.example.user_profile.dto.responses.ProfileResponseDTO;
-import org.example.user_profile.services.DeckService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
