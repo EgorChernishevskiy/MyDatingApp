@@ -18,13 +18,14 @@ repositories {
 }
 
 dependencies {
-
     // Spring
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-configuration-processor:3.4.3")
 
     implementation("org.springframework.kafka:spring-kafka:3.2.4")
+
+    implementation("org.springframework:spring-websocket:6.1.6")
 
     implementation("io.github.cdimascio:java-dotenv:5.2.2")
 

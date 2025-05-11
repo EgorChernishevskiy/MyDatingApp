@@ -3,6 +3,8 @@ package com.example.swipe_service.service;
 import com.example.swipe_service.dto.MatchResponseDTO;
 import com.example.swipe_service.dto.SwipeRequestDTO;
 import com.example.swipe_service.entity.SwipeEntity;
+import com.example.swipe_service.kafka.MatchEvent;
+import com.example.swipe_service.kafka.MatchEventProducer;
 import com.example.swipe_service.repository.SwipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class SwipeService {
 
     private final SwipeRepository swipeRepository;
+    private final MatchEventProducer matchEventProducer;
 
     public MatchResponseDTO swipe(SwipeRequestDTO request) {
         // 1. Сначала проверяем - есть ли запись в БД, где этот пользователь свайпал другого
@@ -38,12 +41,14 @@ public class SwipeService {
             swipe.setDecisionTo(request.getDecision());
             swipeRepository.save(swipe);
 
-            // Проверяем на матч
             if (Boolean.TRUE.equals(swipe.getDecisionFrom()) && Boolean.TRUE.equals(swipe.getDecisionTo())) {
-                return new MatchResponseDTO(request.getUserIdFrom(), request.getUserIdTo(),true);
+                matchEventProducer.sendMatchEvent(new MatchEvent(
+                        request.getUserIdFrom(), request.getUserIdTo()
+                ));
+                return new MatchResponseDTO(request.getUserIdFrom(), request.getUserIdTo(), true);
             }
 
-            return new MatchResponseDTO(request.getUserIdFrom(), request.getUserIdTo(),false);
+            return new MatchResponseDTO(request.getUserIdFrom(), request.getUserIdTo(), false);
         }
 
         // 3. Если записей нет — создаём новую
