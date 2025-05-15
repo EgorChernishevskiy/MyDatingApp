@@ -12,6 +12,7 @@ public class MatchEventProducer {
     private static final String TOPIC = "match-events";
 
     public void sendMatchEvent(MatchEvent event) {
+        System.out.println("Sending match event to Kafka: " + event);
         kafkaTemplate.send(TOPIC, event);
     }
 }

@@ -19,8 +19,8 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final KafkaTemplate<String, ChatMessageEvent> kafkaTemplate;
 
-    public List<Chat> getAllChatsForUser(Long userId1, Long userId2) {
-        return chatRepository.findAllByUserId1OrUserId2(userId1, userId2);
+    public List<Chat> getAllChatsForUser(Long userId) {
+        return chatRepository.findAllByUser(userId);
     }
 
     public Chat createChatIfNotExists(Long userId1, Long userId2) {

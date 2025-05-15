@@ -19,9 +19,9 @@ class ChatController {
     private final MessageRepository messageRepository;
     private final ChatService chatService;
 
-    @GetMapping("/chats/{userId}")
+    @GetMapping("/all/{userId}")
     public ResponseEntity<List<Chat>> getChats(@PathVariable Long userId) {
-        List<Chat> chats = chatService.getAllChatsForUser(userId, userId);
+        List<Chat> chats = chatService.getAllChatsForUser(userId);
         return ResponseEntity.ok(chats);
     }
 

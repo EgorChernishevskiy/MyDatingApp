@@ -17,9 +17,11 @@ public class MatchEventListener {
     @KafkaListener(topics = "match-events", groupId = "chat-service")
     public void consume(String message) {
         try {
+            System.out.println("Received Kafka message: " + message);
             MatchEvent event = objectMapper.readValue(message, MatchEvent.class);
             chatService.createChatIfNotExists(event.getUserIdFrom(), event.getUserIdTo());
         } catch (Exception e) {
+            System.err.println("Error processing Kafka message: " + message);
             e.printStackTrace();
         }
     }
